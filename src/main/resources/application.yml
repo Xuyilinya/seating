@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /seat
+
+# 数据源配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/server_seat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+
+#  mybatis配置
+mybatis-plus:
+  mapper-locations: classpath*:/**/*Mapper.xml
+
+  # 打印sql
+logging:
+  level:
+    com.example.seating.mapper: debug
+
