@@ -14,10 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * <p>
- * 预约记录表 前端控制器
- * </p>
- *
+ * 预约记录模块
  * @author ROY
  * @since 2019-11-11
  */
@@ -25,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 public class TbOrderController {
-
 
     @Resource
     private ITbOrderService orderService;
@@ -50,7 +46,6 @@ public class TbOrderController {
                 }
             }
 
-
             // 更新教室
             order.setCreatTime(LocalDateTime.now());
             return ReturnUtils.Success(orderService.save(order));
@@ -66,9 +61,58 @@ public class TbOrderController {
      * @return
      */
     @GetMapping(value = "/list")
-        public Object list(@NotNull @RequestParam String userId){
+    public Object list(@NotNull @RequestParam String userId){
         try {
             return ReturnUtils.Success(orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId)));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
+
+    /**
+     *
+     * @param seatId
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/signIn")
+    public Object signIn(@RequestParam String seatId,@RequestParam String userId){
+        try {
+            // 获取当前最为最近的预定记录自动签到
+            TbOrder order = orderService.getOne(Wrappers.<TbOrder>query().lambda()
+                    .eq(TbOrder::getUserId,userId)
+                    .eq(TbOrder::getSeatId,seatId)
+                    .eq(TbOrder::getStatus,0)
+                    .last("ORDER BY ABS(DATE_FORMAT(NOW(),'%h')- tb_order.`start_time` LIMIT 1)"));
+
+            if (order == null) {
+               return ReturnUtils.Failure("当前没有需签到的座位");
+            }
+            order.setStatus(1);
+            return ReturnUtils.Success(orderService.updateById(order));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
+
+    /**
+     * 取消预约
+     * @param orderId
+     * @return
+     */
+    @PostMapping(value = "/cancel")
+    public Object cancel(@RequestParam String orderId){
+        try {
+            TbOrder order = orderService.getById(orderId);
+
+            // 在开始时间十五分钟前可取消
+            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() < 45) {
+                 return ReturnUtils.Success(orderService.removeById(order));
+            }
+
+            return ReturnUtils.Failure("请在开始前十五分钟取消");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

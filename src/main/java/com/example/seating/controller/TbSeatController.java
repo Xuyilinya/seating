@@ -41,7 +41,7 @@ public class TbSeatController {
      */
     @GetMapping(value = "/list")
     public Object list(@RequestParam String roomId){
-        if(StringUtils.isBlank(roomId)) return ReturnUtils.ParamsInvalid();
+        if(StringUtils.isBlank(roomId)) return ReturnUtils.ParamsIsBlank();
 
         try {
             // 查询教室座位
@@ -62,6 +62,7 @@ public class TbSeatController {
     public Object getTimeList(@RequestParam String seatId){
         int minTime = 0;
         int maxTime = 0;
+        // 获取当前座位预约记录
         List<TbOrder> list  = orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getSeatId,seatId).orderByAsc(TbOrder::getStartTime));
         if (list.size()>1){
             minTime = Integer.valueOf(list.get(0).getStartTime());
@@ -74,13 +75,20 @@ public class TbSeatController {
         return ReturnUtils.Success(getTimeList(minTime,maxTime));
     }
 
+    /**
+     * 计算可用时间节点
+     * @param minTime
+     * @param maxTime
+     * @return
+     */
     private static List<Map<String,Object>> getTimeList(int minTime, int maxTime){
         List<Map<String,Object>> res = new ArrayList<>();
         int time = 8;
         for (int i = 0; i <= 10 ; i++) {
             Map<String,Object> map = new HashMap<>();
             map.put("time",time+":00");
-            if (time>=minTime && time<=maxTime || LocalDateTime.now().getHour() >= time || LocalDateTime.now().getHour() >= 17) {
+            // 已预约的时间、过期时间、五点之后不可以预约
+            if (time >= minTime && time <= maxTime || LocalDateTime.now().getHour() >= time || LocalDateTime.now().getHour() >= 17) {
                 map.put("flag",false);
             }else {
                 map.put("flag",true);
