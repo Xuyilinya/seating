@@ -46,7 +46,6 @@ public class TbOrderController {
                 }
             }
 
-            // 更新教室
             order.setCreatTime(LocalDateTime.now());
             return ReturnUtils.Success(orderService.save(order));
         }catch (Exception e){
@@ -71,7 +70,7 @@ public class TbOrderController {
     }
 
     /**
-     *
+     * 签到
      * @param seatId
      * @param userId
      * @return
@@ -87,7 +86,7 @@ public class TbOrderController {
                     .last("ORDER BY ABS(DATE_FORMAT(NOW(),'%h')- tb_order.`start_time` LIMIT 1)"));
 
             if (order == null) {
-               return ReturnUtils.Failure("当前没有需签到的座位");
+                return ReturnUtils.Failure("当前没有需签到的座位");
             }
             order.setStatus(1);
             return ReturnUtils.Success(orderService.updateById(order));
