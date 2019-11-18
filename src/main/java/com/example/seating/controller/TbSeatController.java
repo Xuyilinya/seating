@@ -98,4 +98,29 @@ public class TbSeatController {
         }
         return res;
     }
+
+    /**
+     *
+     * 批量生产座位
+     * @return
+     */
+    @GetMapping(value = "/batchSave")
+    public Object batchSave(int count,int roomId){
+        try {
+            List<TbSeat> seats = new ArrayList<>();
+            for (int i = 1; i <count ; i++) {
+                TbSeat seat = new TbSeat();
+                seat.setRoomId(roomId);
+                if (i+"".length() < 2) {
+                    seat.setSeatName("A0"+i);
+                }
+                seat.setSeatName("A"+i);
+                seats.add(seat);
+            }
+            return ReturnUtils.Success(seatService.saveBatch(seats));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
 }

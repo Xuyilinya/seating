@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -15,6 +18,8 @@ import java.io.Serializable;
  * @author ROY
  * @since 2019-11-11
  */
+@Getter
+@Setter
 @TableName("tb_order")
 public class TbOrder extends Model<TbOrder> {
 
@@ -55,72 +60,4 @@ public class TbOrder extends Model<TbOrder> {
      * 创建时间
      */
     private LocalDateTime creatTime;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-    public Integer getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(Integer seatId) {
-        this.seatId = seatId;
-    }
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-    public LocalDateTime getCreatTime() {
-        return creatTime;
-    }
-
-    public void setCreatTime(LocalDateTime creatTime) {
-        this.creatTime = creatTime;
-    }
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
-    }
-
-    @Override
-    public String toString() {
-        return "TbOrder{" +
-        "id=" + id +
-        ", userId=" + userId +
-        ", seatId=" + seatId +
-        ", startTime=" + startTime +
-        ", endTime=" + endTime +
-        ", status=" + status +
-        ", creatTime=" + creatTime +
-        "}";
-    }
 }

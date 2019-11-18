@@ -30,12 +30,15 @@ public class TbUserController {
     @PutMapping(value = "/save")
     public Object save(@RequestBody TbUser user){
         try {
-            return ReturnUtils.Success(userService.save(user));
+            userService.save(user);
+            return ReturnUtils.Success(user.getId());
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
         }
     }
+
+
 
     /**
      * 用户登录
@@ -44,17 +47,17 @@ public class TbUserController {
     @PostMapping(value = "/login")
     public Object login(@RequestBody TbUser login){
         try {
-            // 查询是否存在用户
-            TbUser user = userService.getOne(Wrappers.<TbUser>query().lambda().eq(TbUser::getUsername,login.getUsername()));
+            // 检验图书证号码
+            TbUser user = userService.getOne(Wrappers.<TbUser>query().lambda().eq(TbUser::getLibraryCard,login.getLibraryCard()));
             if (user == null) {
-                return ReturnUtils.ParamsInvalid();
+                return ReturnUtils.Failure("请输入正确的图书证号码");
             }
+            user.setMobile(login.getMobile());
+            user.setName(login.getName());
+            userService.updateById(user);
 
-            // 验证账号密码
-            if (user.getPassword().equals(login.getPassword())) {
-                return ReturnUtils.Success(user.getId());
-            }
-            return ReturnUtils.Failure();
+            // 返回用户编号
+            return ReturnUtils.Success(user.getId());
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
