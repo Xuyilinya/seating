@@ -29,7 +29,7 @@ public class TbSeat extends Model<TbSeat> {
      * 自增主键
      */
     @TableId(value = "id",type = IdType.AUTO)
-    private Integer id;
+    private Integer seatId;
 
     /**
      * 座位名称

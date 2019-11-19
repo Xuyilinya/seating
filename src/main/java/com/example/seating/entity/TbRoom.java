@@ -29,7 +29,7 @@ public class TbRoom extends Model<TbRoom> {
      * 自增主键
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Integer roomId;
 
     /**
      * 教室名称

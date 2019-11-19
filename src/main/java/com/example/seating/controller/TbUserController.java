@@ -31,7 +31,7 @@ public class TbUserController {
     public Object save(@RequestBody TbUser user){
         try {
             userService.save(user);
-            return ReturnUtils.Success(user.getId());
+            return ReturnUtils.Success(user.getUserId());
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
@@ -57,7 +57,7 @@ public class TbUserController {
             userService.updateById(user);
 
             // 返回用户编号
-            return ReturnUtils.Success(user.getId());
+            return ReturnUtils.Success(user.getUserId());
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

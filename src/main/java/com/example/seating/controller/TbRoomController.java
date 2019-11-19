@@ -88,9 +88,9 @@ public class TbRoomController {
             // 查询可用教室
            roomService.list().forEach(
                    room->{
-                       List<TbSeat> seats = seatService.list(Wrappers.<TbSeat>query().lambda().eq(TbSeat::getRoomId,room.getId()));
+                       List<TbSeat> seats = seatService.list(Wrappers.<TbSeat>query().lambda().eq(TbSeat::getRoomId,room.getRoomId()));
                        Map<String,Object> map = new HashMap<>();
-                       map.put("roomId",room.getId());
+                       map.put("roomId",room.getRoomId());
                        map.put("roomName",room.getRoomName());
                        map.put("totalSeat",seats.size());
                        map.put("roomStatus",room.getRoomStatus());

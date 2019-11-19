@@ -27,7 +27,7 @@ public class TbUser extends Model<TbUser> {
      * 自增主键
      */
     @TableId(value = "id",type = IdType.AUTO)
-    private Integer id;
+    private Integer userId;
 
     /**
      * 姓名

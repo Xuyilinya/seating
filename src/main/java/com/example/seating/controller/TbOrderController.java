@@ -41,7 +41,7 @@ public class TbOrderController {
 
             // 时间段冲突
             for (TbOrder ho:orders) {
-                if (Integer.valueOf(ho.getEndTime()) >= Integer.valueOf(order.getStartTime())) {
+                if (Integer.valueOf(ho.getEndTime()) > Integer.valueOf(order.getStartTime())) {
                     return ReturnUtils.Failure("时间段预约冲突");
                 }
             }

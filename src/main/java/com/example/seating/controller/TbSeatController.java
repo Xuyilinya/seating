@@ -63,7 +63,7 @@ public class TbSeatController {
         int minTime = 0;
         int maxTime = 0;
         // 获取当前座位预约记录
-        List<TbOrder> list  = orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getSeatId,seatId).orderByAsc(TbOrder::getStartTime));
+        List<TbOrder> list  = orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getSeatId,seatId).ne(TbOrder::getStatus,2).orderByAsc(TbOrder::getStartTime));
         if (list.size()>1){
             minTime = Integer.valueOf(list.get(0).getStartTime());
             maxTime = Integer.valueOf(list.get(list.size()-1).getEndTime());
@@ -101,7 +101,7 @@ public class TbSeatController {
 
     /**
      *
-     * 批量生产座位
+     * 批量生成座位
      * @return
      */
     @GetMapping(value = "/batchSave")
@@ -111,10 +111,11 @@ public class TbSeatController {
             for (int i = 1; i <count ; i++) {
                 TbSeat seat = new TbSeat();
                 seat.setRoomId(roomId);
-                if (i+"".length() < 2) {
-                    seat.setSeatName("A0"+i);
+                String name = i+"";
+                if (name.length() < 2) {
+                    seat.setSeatName("A0"+name);
                 }
-                seat.setSeatName("A"+i);
+                seat.setSeatName("A"+name);
                 seats.add(seat);
             }
             return ReturnUtils.Success(seatService.saveBatch(seats));
