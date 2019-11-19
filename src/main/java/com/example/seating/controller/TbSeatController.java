@@ -9,6 +9,7 @@ import com.example.seating.service.ITbSeatService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -46,9 +47,6 @@ public class TbSeatController {
         try {
             // 查询教室座位
             List<TbSeat> seatList = seatService.list(Wrappers.<TbSeat>query().lambda().eq(TbSeat::getRoomId,roomId));
-
-            // 获取当前时间能用的座位
-
             return ReturnUtils.Success(seatList);
         }catch (Exception e){
             log.error(e.getMessage(),e);
@@ -125,6 +123,94 @@ public class TbSeatController {
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
+        }
+    }
+
+    /**
+     * 暂离
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/leave")
+    public Object leave(@RequestParam String userId){
+        try {
+            TbOrder order =
+                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,2));
+            if (order == null) {
+                return ReturnUtils.Failure("无可暂离座位");
+            }
+
+            if (Integer.valueOf(order.getEndTime()) < LocalDateTime.now().getHour() || LocalDateTime.now().getMinute() > 30){
+                return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
+            }
+
+            TbSeat seat = seatService.getById(order.getSeatId());
+            seat.setSeatStatus(3);
+            leaveOf(seat.getSeatId());
+            return ReturnUtils.Success(seatService.updateById(seat));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
+
+    /**
+     * 取消暂离
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/leaveCancel")
+    public Object leaveCancel(@RequestParam String userId){
+        try {
+            TbOrder order =
+                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,3));
+            if (order == null) {
+                return ReturnUtils.Failure("当前无需取消暂离的座位");
+            }
+            TbSeat seat = seatService.getById(order.getSeatId());
+            seat.setSeatStatus(2);
+            return ReturnUtils.Success(seatService.updateById(seat));
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
+
+
+    /**
+     * 暂离方法
+     * @param seatId
+     */
+    @Async
+    public void leaveOf(int seatId){
+        try {
+            new Thread(new SeatLeaveThread(seatId)).start();
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+        }
+    }
+
+    /**
+     * 启用线程去自动更新暂离状态
+     */
+    public class SeatLeaveThread implements Runnable{
+        private int seatId;
+
+         SeatLeaveThread(int seatId) {
+            this.seatId = seatId;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(30*60*1000);
+                // 更新座位状态
+                TbSeat seat = seatService.getById(seatId);
+                seat.setSeatStatus(2);
+                seatService.updateById(seat);
+            }catch (Exception e){
+                log.error(e.getMessage(),e);
+            }
         }
     }
 }

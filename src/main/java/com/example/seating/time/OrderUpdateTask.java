@@ -2,7 +2,9 @@ package com.example.seating.time;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.seating.entity.TbOrder;
+import com.example.seating.entity.TbSeat;
 import com.example.seating.service.ITbOrderService;
+import com.example.seating.service.ITbSeatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +22,9 @@ public class OrderUpdateTask {
     @Resource
     private ITbOrderService orderService;
 
+    @Resource
+    private ITbSeatService seatService;
+
     /**
      * 自动更新预约单，觉得更新频率太慢可适当调快
      * 5分钟执行一次
@@ -36,11 +41,35 @@ public class OrderUpdateTask {
                     if (LocalDateTime.now().getHour() >= Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >= 15) {
                         order.setStatus(2);
                         orderService.updateById(order);
+
+                        //释放座位
+                        TbSeat seat = seatService.getById(order.getSeatId());
+                        seat.setSeatStatus(1);
+                        seatService.updateById(seat);
                     }
                 }
         );
-
         log.info(">>>>>>>>>>>>>>>>>【更新完成】<<<<<<<<<<<<<<<<<");
+    }
 
+
+    /**
+     * 自动更新座位状态
+     */
+    @Scheduled(fixedRate = 60*1000)
+    public void seatUpdate(){
+        // 获取所有已签到的预约单，如果过了结束时间则释放座位
+        List<TbOrder> tbOrders =
+                orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getStatus,2));
+
+        tbOrders.forEach(
+                order -> {
+                    if (LocalDateTime.now().getHour() <= Integer.valueOf(order.getEndTime())){
+                        TbSeat seat = seatService.getById(order.getSeatId());
+                        seat.setSeatStatus(1);
+                        seatService.updateById(seat);
+                    }
+                }
+        );
     }
 }

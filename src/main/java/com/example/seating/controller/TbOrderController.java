@@ -56,7 +56,6 @@ public class TbOrderController {
             TbSeat seat = seatService.getById(order.getSeatId());
             seat.setSeatStatus(2);
             seatService.updateById(seat);
-
             return ReturnUtils.Success(orderService.save(order));
         }catch (Exception e){
             log.error(e.getMessage(),e);
