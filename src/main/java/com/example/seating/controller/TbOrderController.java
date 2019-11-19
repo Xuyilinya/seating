@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 预约记录模块
@@ -87,16 +90,29 @@ public class TbOrderController {
     @GetMapping(value = "/signIn")
     public Object signIn(@RequestParam String seatId,@RequestParam String userId){
         try {
-            // 获取当前最为最近的预定记录自动签到
-            TbOrder order = orderService.getOne(Wrappers.<TbOrder>query().lambda()
+            // 获取当前最为接近的预定记录自动签到
+
+            List<TbOrder> orders = orderService.list(Wrappers.<TbOrder>query().lambda()
                     .eq(TbOrder::getUserId,userId)
                     .eq(TbOrder::getSeatId,seatId)
-                    .eq(TbOrder::getStatus,0)
-                    .last("ORDER BY ABS(DATE_FORMAT(NOW(),'%h')- tb_order.`start_time` LIMIT 1)"));
-
-            if (order == null) {
+                    .eq(TbOrder::getStatus,0));
+            if (orders.size() < 1) {
                 return ReturnUtils.Failure("当前没有需签到的座位");
             }
+
+            if (orders.size() > 1) {
+                orders.sort(new Comparator<TbOrder>() {
+                                @Override
+                                public int compare(TbOrder o1, TbOrder o2) {
+                                    int a = LocalDateTime.now().getHour() - Integer.valueOf(o1.getStartTime());
+                                    int b = LocalDateTime.now().getHour() - Integer.valueOf(o2.getStartTime());
+                                    return Math.abs(Math.abs(a-b));
+                                }
+                            }
+                );
+            }
+
+            TbOrder order = orders.get(0);
             order.setStatus(1);
             return ReturnUtils.Success(orderService.updateById(order));
         }catch (Exception e){
