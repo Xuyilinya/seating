@@ -3,7 +3,9 @@ package com.example.seating.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.seating.entity.TbOrder;
+import com.example.seating.entity.TbSeat;
 import com.example.seating.service.ITbOrderService;
+import com.example.seating.service.ITbSeatService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,9 @@ public class TbOrderController {
     @Resource
     private ITbOrderService orderService;
 
+    @Resource
+    private ITbSeatService seatService;
+
     /**
      * 保存预约记录
      * @param order
@@ -45,8 +50,13 @@ public class TbOrderController {
                     return ReturnUtils.Failure("时间段预约冲突");
                 }
             }
-
             order.setCreatTime(LocalDateTime.now());
+
+            // 更新座位状态
+            TbSeat seat = seatService.getById(order.getSeatId());
+            seat.setSeatStatus(2);
+            seatService.updateById(seat);
+
             return ReturnUtils.Success(orderService.save(order));
         }catch (Exception e){
             log.error(e.getMessage(),e);

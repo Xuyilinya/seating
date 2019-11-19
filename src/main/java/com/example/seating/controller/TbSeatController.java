@@ -46,6 +46,9 @@ public class TbSeatController {
         try {
             // 查询教室座位
             List<TbSeat> seatList = seatService.list(Wrappers.<TbSeat>query().lambda().eq(TbSeat::getRoomId,roomId));
+
+            // 获取当前时间能用的座位
+
             return ReturnUtils.Success(seatList);
         }catch (Exception e){
             log.error(e.getMessage(),e);
