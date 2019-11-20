@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +73,25 @@ public class TbOrderController {
     @GetMapping(value = "/list")
     public Object list(@NotNull @RequestParam String userId){
         try {
-            return ReturnUtils.Success(orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId)));
+
+            List<Map<String,Object>> res = new ArrayList<>();
+            List<TbOrder> tbOrders =
+                    orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).orderByDesc(TbOrder::getCreatTime));
+
+            tbOrders.forEach(
+                    order -> {
+                        Map<String,Object> map = new HashMap<>();
+                        String seatName = seatService.getById(order.getSeatId()).getSeatName();
+                        map.put("orderId",order.getOrderId());
+                        map.put("seatName",seatName);
+                        map.put("startTime",order.getStartTime()+":00");
+                        map.put("endTime",order.getEndTime()+":00");
+                        map.put("status",order.getStatus());
+                        map.put("creatTime",order.getCreatTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:dd")));
+                        res.add(map);
+                    }
+            );
+            return ReturnUtils.Success(res);
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
@@ -91,7 +108,6 @@ public class TbOrderController {
     public Object signIn(@RequestParam String seatId,@RequestParam String userId){
         try {
             // 获取当前最为接近的预定记录自动签到
-
             List<TbOrder> orders = orderService.list(Wrappers.<TbOrder>query().lambda()
                     .eq(TbOrder::getUserId,userId)
                     .eq(TbOrder::getSeatId,seatId)

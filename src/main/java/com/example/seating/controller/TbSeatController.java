@@ -140,14 +140,45 @@ public class TbSeatController {
                 return ReturnUtils.Failure("无可暂离座位");
             }
 
-            if (Integer.valueOf(order.getEndTime()) < LocalDateTime.now().getHour() || LocalDateTime.now().getMinute() > 30){
-                return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
+            // 结束前三十分钟不允许暂离
+            if(Integer.valueOf(order.getEndTime()) > LocalDateTime.now().getHour() && LocalDateTime.now().getMinute() < 30){
+                TbSeat seat = seatService.getById(order.getSeatId());
+                seat.setSeatStatus(3);
+                leaveOf(seat.getSeatId());
+                return ReturnUtils.Success(seatService.updateById(seat));
             }
 
-            TbSeat seat = seatService.getById(order.getSeatId());
-            seat.setSeatStatus(3);
-            leaveOf(seat.getSeatId());
-            return ReturnUtils.Success(seatService.updateById(seat));
+            return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
+            return ReturnUtils.Failure();
+        }
+    }
+
+    /**
+     * 退座
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/quit")
+    public Object quit(@RequestParam String userId){
+        try {
+
+            TbOrder order =
+                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,2));
+
+            if (order == null) {
+                return ReturnUtils.Failure("无可退座位");
+            }
+
+            // 开始三十分钟后才能退座
+            if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >= 30) {
+                TbSeat seat = seatService.getById(order.getSeatId());
+                seat.setSeatStatus(0);
+                return ReturnUtils.Success(seatService.updateById(seat));
+            }
+
+            return ReturnUtils.Failure("请在开始三十分钟后退座");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
