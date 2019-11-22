@@ -73,7 +73,6 @@ public class TbOrderController {
     @GetMapping(value = "/list")
     public Object list(@NotNull @RequestParam String userId){
         try {
-
             List<Map<String,Object>> res = new ArrayList<>();
             List<TbOrder> tbOrders =
                     orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).orderByDesc(TbOrder::getCreatTime));
@@ -149,8 +148,13 @@ public class TbOrderController {
 
             // 在开始时间十五分钟前可取消
             if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() < 45) {
+                TbSeat seat = seatService.getById(order.getSeatId());
+                seat.setSeatStatus(1);
+                seatService.updateById(seat);
+
                  return ReturnUtils.Success(orderService.removeById(order));
             }
+
 
             return ReturnUtils.Failure("请在开始前十五分钟取消");
         }catch (Exception e){
