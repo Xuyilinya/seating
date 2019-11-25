@@ -9,7 +9,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: seat
     password: Seat_12345
-    url: jdbc:mysql://152.136.68.54:3306/server_seat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://152.136.68.54:3306/server_seat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
+
 
 #  mybatis配置
 mybatis-plus:

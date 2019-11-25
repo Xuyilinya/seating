@@ -37,7 +37,7 @@ public class TbSeat extends Model<TbSeat> {
     private String seatName;
 
     /**
-     * 座位状态 0:禁用；1：可用；2：已预约；3：暂离
+     * 座位状态 0:禁用；1：可用；2：已预约；3：暂离;4：有人
      */
     private Integer seatStatus;
 

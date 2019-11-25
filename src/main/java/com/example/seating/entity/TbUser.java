@@ -49,4 +49,9 @@ public class TbUser extends Model<TbUser> {
      */
     private LocalDateTime createTime;
 
+    /**
+     * 用户状态 0:小黑屋；1：正常
+     */
+    private Integer status;
+
 }

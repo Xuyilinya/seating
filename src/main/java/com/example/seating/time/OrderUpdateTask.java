@@ -1,10 +1,14 @@
 package com.example.seating.time;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
+import com.example.seating.entity.TbUser;
+import com.example.seating.service.ITbBlackListService;
 import com.example.seating.service.ITbOrderService;
 import com.example.seating.service.ITbSeatService;
+import com.example.seating.service.ITbUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -20,10 +25,16 @@ import java.util.List;
 public class OrderUpdateTask {
 
     @Resource
+    private ITbUserService userService;
+
+    @Resource
     private ITbOrderService orderService;
 
     @Resource
     private ITbSeatService seatService;
+
+    @Resource
+    private ITbBlackListService blackListService;
 
     /**
      * 自动更新预约单，觉得更新频率太慢可适当调快

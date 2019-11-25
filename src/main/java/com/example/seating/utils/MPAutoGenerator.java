@@ -34,9 +34,9 @@ public class MPAutoGenerator {
         dsc.setDbType(DbType.MYSQL);
         // TODO 数据库地址
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
-        dsc.setUsername("root");
-        dsc.setPassword("root");
-        dsc.setUrl("jdbc:mysql://localhost:3306/server_seat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
+        dsc.setUsername("seat");
+        dsc.setPassword("Seat_12345");
+        dsc.setUrl("jdbc:mysql://152.136.68.54:3306/server_seat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
         dsc.setTypeConvert(new MySqlTypeConvert() {
             @Override
             public IColumnType processTypeConvert(GlobalConfig globalConfig, String fieldType) {
@@ -52,7 +52,7 @@ public class MPAutoGenerator {
         // strategy.setCapitalMode(true);// 全局大写命名 ORACLE 注意
         strategy.setTablePrefix(new String[] { "" });
         strategy.setNaming(NamingStrategy.underline_to_camel);
-        strategy.setInclude(new String[] { "tb_order" });
+        strategy.setInclude(new String[] { "tb_black_list" });
         mpg.setStrategy(strategy);
         PackageConfig pc = new PackageConfig();
 

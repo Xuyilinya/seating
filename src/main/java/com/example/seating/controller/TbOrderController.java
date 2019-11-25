@@ -2,12 +2,18 @@ package com.example.seating.controller;
 
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.seating.CheckUser;
+import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
+import com.example.seating.entity.TbUser;
+import com.example.seating.service.ITbBlackListService;
 import com.example.seating.service.ITbOrderService;
 import com.example.seating.service.ITbSeatService;
+import com.example.seating.service.ITbUserService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,6 +39,14 @@ public class TbOrderController {
     @Resource
     private ITbSeatService seatService;
 
+    @Resource
+    private ITbUserService userService;
+
+    @Resource
+    private ITbBlackListService blackListService;
+
+
+
     /**
      * 保存预约记录
      * @param order
@@ -41,6 +55,14 @@ public class TbOrderController {
     @PutMapping(value = "/save")
     public Object save(@RequestBody TbOrder order){
         try {
+            TbUser user = userService.getById(order.getUserId());
+            if (user.getStatus() == 0) {
+                TbBlackList blackList =
+                blackListService.getOne(Wrappers.<TbBlackList>query().lambda().eq(TbBlackList::getUserId,order.getUserId()));
+                return ReturnUtils.Failure("由于你最近逾期次数超过三次现已被拉入黑名单，于"+blackList.getExpectEndTime().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))
+                        +"后自动取消黑名单如有异议请联系管理员解除");
+            }
+
             // 查询预约
             List<TbOrder> orders = orderService.list(Wrappers.<TbOrder>query().lambda()
                     .eq(TbOrder::getUserId,order.getUserId())
@@ -126,7 +148,6 @@ public class TbOrderController {
                             }
                 );
             }
-
             TbOrder order = orders.get(0);
             order.setStatus(1);
             return ReturnUtils.Success(orderService.updateById(order));
