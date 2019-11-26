@@ -100,6 +100,10 @@ public class BlackHomeTask {
                         if (overdueCount.size() >= 3) {
                             List<String> orderIds = overdueCount.stream().map(order -> String.valueOf(order.getOrderId())).collect(Collectors.toList());
 
+                            //更新用户状态
+                            user.setStatus(0);
+                            userService.updateById(user);
+
                             TbBlackList blackList = new TbBlackList();
                             blackList.setUserId(user.getUserId());
                             blackList.setExpectEndTime(LocalDateTime.now().minus(-29, ChronoUnit.DAYS));
