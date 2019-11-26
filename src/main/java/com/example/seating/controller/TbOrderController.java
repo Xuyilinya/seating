@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/order")
 public class TbOrderController {
-
     @Resource
     private ITbOrderService orderService;
 
@@ -175,7 +174,6 @@ public class TbOrderController {
 
                  return ReturnUtils.Success(orderService.removeById(order));
             }
-
 
             return ReturnUtils.Failure("请在开始前十五分钟取消");
         }catch (Exception e){

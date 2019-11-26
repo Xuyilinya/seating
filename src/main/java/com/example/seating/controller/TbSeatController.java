@@ -164,17 +164,19 @@ public class TbSeatController {
     public Object quit(@RequestParam String userId){
         try {
 
-            TbOrder order =
-                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,2));
+            TbOrder order = orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,1));
 
             if (order == null) {
                 return ReturnUtils.Failure("无可退座位");
             }
 
             // 开始三十分钟后才能退座
-            if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >= 30) {
+            if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) ) {
+                order.setStatus(3);
+                orderService.updateById(order);
+
                 TbSeat seat = seatService.getById(order.getSeatId());
-                seat.setSeatStatus(0);
+                seat.setSeatStatus(1);
                 return ReturnUtils.Success(seatService.updateById(seat));
             }
 
