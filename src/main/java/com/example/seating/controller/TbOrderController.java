@@ -165,7 +165,8 @@ public class TbOrderController {
             TbOrder order = orderService.getById(orderId);
 
             // 在开始时间十五分钟前可取消
-            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() < 45) {
+            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) ||
+                    Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() <= 45 ) {
                 TbSeat seat = seatService.getById(order.getSeatId());
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 seatService.updateById(seat);

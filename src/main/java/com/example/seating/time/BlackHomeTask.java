@@ -105,6 +105,7 @@ public class BlackHomeTask {
                             user.setStatus(SysConstant.USER_STATUS_BLACK_LIST);
                             userService.updateById(user);
 
+                            // 创建黑名单记录
                             TbBlackList blackList = new TbBlackList();
                             blackList.setUserId(user.getUserId());
                             blackList.setExpectEndTime(LocalDateTime.now().minus(-29, ChronoUnit.DAYS));

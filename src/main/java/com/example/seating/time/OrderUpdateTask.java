@@ -69,11 +69,11 @@ public class OrderUpdateTask {
     public void seatUpdate(){
         // 获取所有已签到的预约单，如果过了结束时间则释放座位
         List<TbOrder> tbOrders =
-                orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getStatus,2));
+                orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getStatus,SysConstant.ORDER_STATUS_SIGN_IN));
 
         tbOrders.forEach(
                 order -> {
-                    if (LocalDateTime.now().getHour() <= Integer.valueOf(order.getEndTime())){
+                    if (LocalDateTime.now().getHour() >= Integer.valueOf(order.getEndTime())){
                         TbSeat seat = seatService.getById(order.getSeatId());
                         seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                         seatService.updateById(seat);

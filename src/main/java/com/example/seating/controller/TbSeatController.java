@@ -171,7 +171,9 @@ public class TbSeatController {
             }
 
             // 开始三十分钟后才能退座
-            if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) ) {
+            if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) ||
+            LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >=30
+            ) {
                 order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
                 orderService.updateById(order);
 
