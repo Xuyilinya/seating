@@ -1,6 +1,7 @@
 package com.example.seating.time;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbUser;
@@ -40,16 +41,16 @@ public class BlackHomeTask {
     public void release() {
         try {
             log.info(">>>>>>>>>>>>>>>>>>查询可释放用户<<<<<<<<<<<<<<<<<<<<<<<");
-            tbBlackListService.list(Wrappers.<TbBlackList>query().lambda().eq(TbBlackList::getStatus,1)).forEach(
+            tbBlackListService.list(Wrappers.<TbBlackList>query().lambda().eq(TbBlackList::getStatus, SysConstant.BLACK_LIST_STATUS_VALID)).forEach(
                     b -> {
                         if (LocalDateTime.now().isAfter(b.getExpectEndTime())) {
-                            b.setStatus(0);
-                            b.setEndStatus(0);
+                            b.setStatus(SysConstant.BLACK_LIST_STATUS_INVALID);
+                            b.setEndStatus(SysConstant.BLACK_LIST_END_STATUS_AUTO);
                             b.setActuallyEndTime(LocalDateTime.now());
                             tbBlackListService.updateById(b);
 
                             TbUser user = userService.getById(b.getUserId());
-                            user.setStatus(1);
+                            user.setStatus(SysConstant.USER_STATUS_ENABLE);
                             userService.updateById(user);
                         }
                     }
@@ -87,13 +88,13 @@ public class BlackHomeTask {
                             }
                             overdueCount = orderService.list(Wrappers.<TbOrder>query().lambda()
                                     .eq(TbOrder::getUserId, user.getUserId())
-                                    .eq(TbOrder::getStatus, 2)
+                                    .eq(TbOrder::getStatus, SysConstant.ORDER_STATUS_OVERDUE)
                                     .between(TbOrder::getCreatTime, time, LocalDateTime.now()));
 
                         } else {
                             overdueCount = orderService.list(Wrappers.<TbOrder>query().lambda()
                                     .eq(TbOrder::getUserId, user.getUserId())
-                                    .eq(TbOrder::getStatus, 2));
+                                    .eq(TbOrder::getStatus, SysConstant.ORDER_STATUS_OVERDUE));
 
                         }
 
@@ -101,7 +102,7 @@ public class BlackHomeTask {
                             List<String> orderIds = overdueCount.stream().map(order -> String.valueOf(order.getOrderId())).collect(Collectors.toList());
 
                             //更新用户状态
-                            user.setStatus(0);
+                            user.setStatus(SysConstant.USER_STATUS_BLACK_LIST);
                             userService.updateById(user);
 
                             TbBlackList blackList = new TbBlackList();

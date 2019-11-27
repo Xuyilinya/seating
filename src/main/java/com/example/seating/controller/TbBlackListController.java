@@ -1,12 +1,12 @@
 package com.example.seating.controller;
 
 
+import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbUser;
 import com.example.seating.service.ITbBlackListService;
 import com.example.seating.service.ITbUserService;
 import com.example.seating.utils.ReturnUtils;
-import com.sun.deploy.util.BlackList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,13 +57,13 @@ public class TbBlackListController {
     public Object release(@RequestParam String id){
         try {
             TbBlackList blackList = blackListService.getById(id);
-            blackList.setStatus(0);
-            blackList.setEndStatus(1);
+            blackList.setStatus(SysConstant.BLACK_LIST_STATUS_INVALID);
+            blackList.setEndStatus(SysConstant.BLACK_LIST_END_STATUS_MANUAL);
             blackList.setActuallyEndTime(LocalDateTime.now());
             blackListService.updateById(blackList);
 
             TbUser user = userService.getById(blackList.getUserId());
-            user.setStatus(0);
+            user.setStatus(SysConstant.USER_STATUS_ENABLE);
             return userService.updateById(user);
         }catch (Exception e){
             log.error(e.getMessage(),e);

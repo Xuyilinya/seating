@@ -2,7 +2,7 @@ package com.example.seating.controller;
 
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.example.seating.CheckUser;
+import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
@@ -13,7 +13,6 @@ import com.example.seating.service.ITbSeatService;
 import com.example.seating.service.ITbUserService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,7 +20,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 预约记录模块
@@ -55,7 +53,7 @@ public class TbOrderController {
     public Object save(@RequestBody TbOrder order){
         try {
             TbUser user = userService.getById(order.getUserId());
-            if (user.getStatus() == 0) {
+            if (user.getStatus() == SysConstant.USER_STATUS_BLACK_LIST) {
                 TbBlackList blackList =
                 blackListService.getOne(Wrappers.<TbBlackList>query().lambda().eq(TbBlackList::getUserId,order.getUserId()));
                 return ReturnUtils.Failure("由于你最近逾期次数超过三次现已被拉入黑名单，于"+blackList.getExpectEndTime().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))
@@ -77,7 +75,7 @@ public class TbOrderController {
 
             // 更新座位状态
             TbSeat seat = seatService.getById(order.getSeatId());
-            seat.setSeatStatus(2);
+            seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
             seatService.updateById(seat);
             return ReturnUtils.Success(orderService.save(order));
         }catch (Exception e){
@@ -131,7 +129,7 @@ public class TbOrderController {
             List<TbOrder> orders = orderService.list(Wrappers.<TbOrder>query().lambda()
                     .eq(TbOrder::getUserId,userId)
                     .eq(TbOrder::getSeatId,seatId)
-                    .eq(TbOrder::getStatus,0));
+                    .eq(TbOrder::getStatus,SysConstant.ORDER_STATUS_NOT_SIGN_IN));
             if (orders.size() < 1) {
                 return ReturnUtils.Failure("当前没有需签到的座位");
             }
@@ -148,7 +146,7 @@ public class TbOrderController {
                 );
             }
             TbOrder order = orders.get(0);
-            order.setStatus(1);
+            order.setStatus(SysConstant.ORDER_STATUS_SIGN_IN);
             return ReturnUtils.Success(orderService.updateById(order));
         }catch (Exception e){
             log.error(e.getMessage(),e);
@@ -169,7 +167,7 @@ public class TbOrderController {
             // 在开始时间十五分钟前可取消
             if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() < 45) {
                 TbSeat seat = seatService.getById(order.getSeatId());
-                seat.setSeatStatus(1);
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 seatService.updateById(seat);
 
                  return ReturnUtils.Success(orderService.removeById(order));

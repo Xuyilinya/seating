@@ -1,10 +1,9 @@
 package com.example.seating.time;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.example.seating.entity.TbBlackList;
+import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
-import com.example.seating.entity.TbUser;
 import com.example.seating.service.ITbBlackListService;
 import com.example.seating.service.ITbOrderService;
 import com.example.seating.service.ITbSeatService;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -44,18 +42,18 @@ public class OrderUpdateTask {
     public void orderUpdate(){
         log.info(">>>>>>>>>>>>>>>>>【开始更新预约单】<<<<<<<<<<<<<<<<<");
         List<TbOrder> tbOrderList =
-                orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getStatus,0));
+                orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getStatus, SysConstant.ORDER_STATUS_NOT_SIGN_IN));
 
         // 超过开始时间十五分钟视为逾期
         tbOrderList.forEach(
                 order -> {
                     if (LocalDateTime.now().getHour() >= Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >= 15) {
-                        order.setStatus(2);
+                        order.setStatus(SysConstant.ORDER_STATUS_OVERDUE);
                         orderService.updateById(order);
 
                         //释放座位
                         TbSeat seat = seatService.getById(order.getSeatId());
-                        seat.setSeatStatus(1);
+                        seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                         seatService.updateById(seat);
                     }
                 }
@@ -77,7 +75,7 @@ public class OrderUpdateTask {
                 order -> {
                     if (LocalDateTime.now().getHour() <= Integer.valueOf(order.getEndTime())){
                         TbSeat seat = seatService.getById(order.getSeatId());
-                        seat.setSeatStatus(1);
+                        seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                         seatService.updateById(seat);
                     }
                 }

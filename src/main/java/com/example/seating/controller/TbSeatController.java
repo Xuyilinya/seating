@@ -2,6 +2,7 @@ package com.example.seating.controller;
 
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
 import com.example.seating.service.ITbOrderService;
@@ -64,7 +65,7 @@ public class TbSeatController {
         int minTime = 0;
         int maxTime = 0;
         // 获取当前座位预约记录
-        List<TbOrder> list  = orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getSeatId,seatId).ne(TbOrder::getStatus,2).orderByAsc(TbOrder::getStartTime));
+        List<TbOrder> list  = orderService.list(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getSeatId,seatId).ne(TbOrder::getStatus, SysConstant.ORDER_STATUS_OVERDUE).orderByAsc(TbOrder::getStartTime));
         if (list.size()>1){
             minTime = Integer.valueOf(list.get(0).getStartTime());
             maxTime = Integer.valueOf(list.get(list.size()-1).getEndTime());
@@ -134,8 +135,7 @@ public class TbSeatController {
     @GetMapping(value = "/leave")
     public Object leave(@RequestParam String userId){
         try {
-            TbOrder order =
-                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,2));
+            TbOrder order = orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,SysConstant.ORDER_STATUS_SIGN_IN));
             if (order == null) {
                 return ReturnUtils.Failure("无可暂离座位");
             }
@@ -143,7 +143,7 @@ public class TbSeatController {
             // 结束前三十分钟不允许暂离
             if(Integer.valueOf(order.getEndTime()) > LocalDateTime.now().getHour() && LocalDateTime.now().getMinute() < 30){
                 TbSeat seat = seatService.getById(order.getSeatId());
-                seat.setSeatStatus(3);
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_LEAVE);
                 leaveOf(seat.getSeatId());
                 return ReturnUtils.Success(seatService.updateById(seat));
             }
@@ -172,11 +172,11 @@ public class TbSeatController {
 
             // 开始三十分钟后才能退座
             if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) ) {
-                order.setStatus(3);
+                order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
                 orderService.updateById(order);
 
                 TbSeat seat = seatService.getById(order.getSeatId());
-                seat.setSeatStatus(1);
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 return ReturnUtils.Success(seatService.updateById(seat));
             }
 
@@ -196,12 +196,13 @@ public class TbSeatController {
     public Object leaveCancel(@RequestParam String userId){
         try {
             TbOrder order =
-                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,3));
+                    orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,SysConstant.ORDER_STATUS_SIGN_IN));
             if (order == null) {
                 return ReturnUtils.Failure("当前无需取消暂离的座位");
             }
             TbSeat seat = seatService.getById(order.getSeatId());
-            seat.setSeatStatus(2);
+
+            seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
             return ReturnUtils.Success(seatService.updateById(seat));
         }catch (Exception e){
             log.error(e.getMessage(),e);
@@ -239,7 +240,7 @@ public class TbSeatController {
                 Thread.sleep(30*60*1000);
                 // 更新座位状态
                 TbSeat seat = seatService.getById(seatId);
-                seat.setSeatStatus(2);
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
                 seatService.updateById(seat);
             }catch (Exception e){
                 log.error(e.getMessage(),e);
