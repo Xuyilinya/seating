@@ -38,7 +38,7 @@ public class OrderUpdateTask {
      * 自动更新预约单，觉得更新频率太慢可适当调快
      * 5分钟执行一次
      */
-    @Scheduled(fixedRate = 5*60*1000)
+    @Scheduled(fixedRate = 60*1000)
     public void orderUpdate(){
         log.info(">>>>>>>>>>>>>>>>>【开始更新预约单】<<<<<<<<<<<<<<<<<");
         List<TbOrder> tbOrderList =

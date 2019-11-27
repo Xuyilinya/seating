@@ -172,8 +172,7 @@ public class TbSeatController {
 
             // 开始三十分钟后才能退座
             if (LocalDateTime.now().getHour() > Integer.valueOf(order.getStartTime()) ||
-            LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >=30
-            ) {
+                    LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() >=30) {
                 order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
                 orderService.updateById(order);
 
@@ -203,9 +202,11 @@ public class TbSeatController {
                 return ReturnUtils.Failure("当前无需取消暂离的座位");
             }
             TbSeat seat = seatService.getById(order.getSeatId());
-
-            seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
-            return ReturnUtils.Success(seatService.updateById(seat));
+            if (seat.getSeatStatus() == SysConstant.SEAT_STATUS_LEAVE) {
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
+                return ReturnUtils.Success(seatService.updateById(seat));
+            }
+            return ReturnUtils.Failure("当前无需取消暂离的座位");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

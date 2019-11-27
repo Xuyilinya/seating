@@ -13,11 +13,13 @@ import com.example.seating.service.ITbSeatService;
 import com.example.seating.service.ITbUserService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Local;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -146,8 +148,12 @@ public class TbOrderController {
                 );
             }
             TbOrder order = orders.get(0);
-            order.setStatus(SysConstant.ORDER_STATUS_SIGN_IN);
-            return ReturnUtils.Success(orderService.updateById(order));
+            if(Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour()==1 && LocalDateTime.now().getMinute() >= 45 ||
+                    LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() <= 15){
+                order.setStatus(SysConstant.ORDER_STATUS_SIGN_IN);
+                return ReturnUtils.Success(orderService.updateById(order));
+            }
+            return ReturnUtils.Success("请在开始预约开始前后15分钟内签到");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
