@@ -39,6 +39,14 @@ public class ReturnUtils implements Serializable {
         return new ReturnUtils(ReturnEnum.RETURN_STATUS_SUCCESS.getCode(),ReturnEnum.RETURN_STATUS_SUCCESS.getMsg(),data);
     }
 
+    public static  ReturnUtils Success(Object data,String msg){
+        Map<String,Object> retMap = new HashMap<>();
+        retMap.put("data",data);
+        JSON json = new JSONObject(retMap);
+        log.info("----------------output data is{}",json);
+        return new ReturnUtils(ReturnEnum.RETURN_STATUS_SUCCESS.getCode(),msg,data);
+    }
+
     public static ReturnUtils Failure(){
         return new ReturnUtils(ReturnEnum.RETURN_STATUS_FAIL.getCode(),ReturnEnum.RETURN_STATUS_FAIL.getMsg(),null);
     }
@@ -58,4 +66,5 @@ public class ReturnUtils implements Serializable {
     public static ReturnUtils UserNotLogin(){
         return new ReturnUtils(ReturnEnum.RETURN_STATUS_USER_IS_NOT_LOGIN.getCode(),ReturnEnum.RETURN_STATUS_USER_IS_NOT_LOGIN.getMsg(),null);
     }
+
 }

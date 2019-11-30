@@ -14,10 +14,13 @@ public class LeaveThread extends Thread {
         this.seatId = seatId;
     }
 
+    /**
+     * 暂离方法
+     */
     @Override
     public void run() {
         try {
-            Thread.sleep(60 * 1000);
+            Thread.sleep(30*60 * 1000);
 
             // 不取消暂离自动更新座位为可预约状态
             ITbSeatService seatService = SpringUtils.getBean(ITbSeatService.class);

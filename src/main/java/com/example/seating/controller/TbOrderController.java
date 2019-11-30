@@ -153,7 +153,7 @@ public class TbOrderController {
                 order.setStatus(SysConstant.ORDER_STATUS_SIGN_IN);
                 return ReturnUtils.Success(orderService.updateById(order));
             }
-            return ReturnUtils.Success("请在开始预约开始前后15分钟内签到");
+            return ReturnUtils.Failure("请在开始预约开始前后15分钟内签到");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

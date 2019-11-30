@@ -87,11 +87,11 @@ public class TbSeatController {
     private static List<Map<String,Object>> getTimeList(int minTime, int maxTime){
         List<Map<String,Object>> res = new ArrayList<>();
         int time = 8;
-        for (int i = 0; i <= 10 ; i++) {
+        for (int i = 0; i <= 16 ; i++) {
             Map<String,Object> map = new HashMap<>();
             map.put("time",time+":00");
             // 已预约的时间、过期时间、五点之后不可以预约
-            if (time >= minTime && time <= maxTime || LocalDateTime.now().getHour() >= time || LocalDateTime.now().getHour() >= 17) {
+            if (time >= minTime && time <= maxTime || LocalDateTime.now().getHour() >= time || LocalDateTime.now().getHour() >= 23) {
                 map.put("flag",false);
             }else {
                 map.put("flag",true);
@@ -147,7 +147,7 @@ public class TbSeatController {
                 TbSeat seat = seatService.getById(order.getSeatId());
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_LEAVE);
                 leaveOf(seat.getSeatId());
-                return ReturnUtils.Success(seatService.updateById(seat));
+                return ReturnUtils.Success(seatService.updateById(seat),"暂离成功");
             }
 
             return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
