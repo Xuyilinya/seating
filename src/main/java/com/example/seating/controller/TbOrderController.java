@@ -171,13 +171,15 @@ public class TbOrderController {
             TbOrder order = orderService.getById(orderId);
 
             // 在开始时间十五分钟前可取消
-            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) || Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() <= 45 ) {
+            if (Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() >= 15 ) {
+                return ReturnUtils.Failure("请在开始前十五分钟取消");
+            }else {
                 TbSeat seat = seatService.getById(order.getSeatId());
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 seatService.updateById(seat);
                 return ReturnUtils.Success(orderService.removeById(order));
             }
-            return ReturnUtils.Failure("请在开始前十五分钟取消");
+
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
