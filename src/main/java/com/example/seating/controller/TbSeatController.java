@@ -146,7 +146,7 @@ public class TbSeatController {
                         return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
                     }else {
                         seat.setSeatStatus(SysConstant.SEAT_STATUS_LEAVE);
-                        leaveOf(seat.getSeatId());
+                        leaveOf(order.getOrderId());
                         return ReturnUtils.Success(seatService.updateById(seat),"暂离成功");
                     }
                 }
@@ -206,7 +206,7 @@ public class TbSeatController {
             TbSeat seat = seatService.getById(order.getSeatId());
             if (seat.getSeatStatus() == SysConstant.SEAT_STATUS_LEAVE) {
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_APPOINTMENT);
-                LeaveHandler.removeLeaveThread(seat.getSeatId());
+                LeaveHandler.removeLeaveThread(order.getOrderId());
                 return ReturnUtils.Success(seatService.updateById(seat));
             }
             return ReturnUtils.Failure("当前无需取消暂离的座位");
@@ -219,12 +219,12 @@ public class TbSeatController {
 
     /**
      * 暂离方法
-     * @param seatId
+     * @param orderId
      */
     @Async
-    public void leaveOf(int seatId){
+    public void leaveOf(int orderId){
         try {
-            LeaveHandler.creatLeaveThread(seatId);
+            LeaveHandler.creatLeaveThread(orderId);
         }catch (Exception e){
             log.error(e.getMessage(),e);
         }
