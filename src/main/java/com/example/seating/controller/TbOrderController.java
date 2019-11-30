@@ -175,12 +175,8 @@ public class TbOrderController {
                 TbSeat seat = seatService.getById(order.getSeatId());
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 seatService.updateById(seat);
-
-                order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
-
-                 return ReturnUtils.Success(orderService.updateById(order));
+                return ReturnUtils.Success(orderService.updateById(order));
             }
-
             return ReturnUtils.Failure("请在开始前十五分钟取消");
         }catch (Exception e){
             log.error(e.getMessage(),e);

@@ -137,20 +137,21 @@ public class TbSeatController {
     public Object leave(@RequestParam String userId){
         try {
             TbOrder order = orderService.getOne(Wrappers.<TbOrder>query().lambda().eq(TbOrder::getUserId,userId).eq(TbOrder::getStatus,SysConstant.ORDER_STATUS_SIGN_IN));
-            if (order == null) {
-                return ReturnUtils.Failure("无可暂离座位");
-            }
 
-            // 结束前三十分钟不允许暂离
-            if(Integer.valueOf(order.getEndTime()) > LocalDateTime.now().getHour() ||
-                    LocalDateTime.now().getHour() == Integer.valueOf(order.getEndTime()) && LocalDateTime.now().getMinute() <= 30){
+            if(order!=null){
                 TbSeat seat = seatService.getById(order.getSeatId());
-                seat.setSeatStatus(SysConstant.SEAT_STATUS_LEAVE);
-                leaveOf(seat.getSeatId());
-                return ReturnUtils.Success(seatService.updateById(seat),"暂离成功");
+                if (SysConstant.SEAT_STATUS_APPOINTMENT == seat.getSeatStatus()) {
+                    // 结束前三十分钟不允许暂离
+                    if (Integer.valueOf(order.getEndTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() > 30) {
+                        return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
+                    }else {
+                        seat.setSeatStatus(SysConstant.SEAT_STATUS_LEAVE);
+                        leaveOf(seat.getSeatId());
+                        return ReturnUtils.Success(seatService.updateById(seat),"暂离成功");
+                    }
+                }
             }
-
-            return ReturnUtils.Failure("距离预约结束时间小于三十分钟不能暂离");
+            return ReturnUtils.Failure("无可暂离座位");
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

@@ -20,13 +20,16 @@ public class LeaveThread extends Thread {
     @Override
     public void run() {
         try {
-            Thread.sleep(30*60 * 1000);
+            Thread.sleep(30 * 1000);
 
             // 不取消暂离自动更新座位为可预约状态
             ITbSeatService seatService = SpringUtils.getBean(ITbSeatService.class);
             TbSeat seat = seatService.getById(seatId);
-            seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
-            seatService.updateById(seat);
+            if (SysConstant.SEAT_STATUS_LEAVE == seat.getSeatStatus()) {
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
+                seatService.updateById(seat);
+            }
+
         }catch (Exception e){
 
         }
