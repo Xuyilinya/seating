@@ -77,6 +77,9 @@ public class OrderUpdateTask {
                         TbSeat seat = seatService.getById(order.getSeatId());
                         seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                         seatService.updateById(seat);
+
+                        order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
+                        orderService.updateById(order);
                     }
                 }
         );

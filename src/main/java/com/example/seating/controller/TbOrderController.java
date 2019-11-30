@@ -148,8 +148,8 @@ public class TbOrderController {
                 );
             }
             TbOrder order = orders.get(0);
-            if(Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour()==1 && LocalDateTime.now().getMinute() >= 45 ||
-                    LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() <= 15){
+            if(Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour()==1 && LocalDateTime.now().getMinute() >= 45
+                    || LocalDateTime.now().getHour() == Integer.valueOf(order.getStartTime()) && LocalDateTime.now().getMinute() <= 15){
                 order.setStatus(SysConstant.ORDER_STATUS_SIGN_IN);
                 return ReturnUtils.Success(orderService.updateById(order));
             }
@@ -171,13 +171,14 @@ public class TbOrderController {
             TbOrder order = orderService.getById(orderId);
 
             // 在开始时间十五分钟前可取消
-            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) ||
-                    Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() <= 45 ) {
+            if (LocalDateTime.now().getHour() < Integer.valueOf(order.getStartTime()) || Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() <= 45 ) {
                 TbSeat seat = seatService.getById(order.getSeatId());
                 seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
                 seatService.updateById(seat);
 
-                 return ReturnUtils.Success(orderService.removeById(order));
+                order.setStatus(SysConstant.ORDER_STATUS_CANCEL);
+
+                 return ReturnUtils.Success(orderService.updateById(order));
             }
 
             return ReturnUtils.Failure("请在开始前十五分钟取消");
