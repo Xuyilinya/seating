@@ -160,6 +160,10 @@ public class TbOrderController {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println(23 - LocalDateTime.now().getHour());
+    }
+
     /**
      * 取消预约
      * @param orderId
@@ -171,7 +175,7 @@ public class TbOrderController {
             TbOrder order = orderService.getById(orderId);
 
             // 在开始时间十五分钟前可取消
-            if (Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() >= 45 ) {
+            if (Integer.valueOf(order.getStartTime()) == LocalDateTime.now().getHour()|| Integer.valueOf(order.getStartTime()) - LocalDateTime.now().getHour() == 1 && LocalDateTime.now().getMinute() >= 45 ) {
                 return ReturnUtils.Failure("请在开始前十五分钟取消");
             }else {
                 TbSeat seat = seatService.getById(order.getSeatId());
