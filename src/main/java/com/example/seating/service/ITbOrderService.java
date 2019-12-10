@@ -1,5 +1,8 @@
 package com.example.seating.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.seating.dto.OrderPageDTO;
 import com.example.seating.entity.TbOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ITbOrderService extends IService<TbOrder> {
 
+    IPage<OrderPageDTO> pageOf(Page page);
 }

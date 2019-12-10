@@ -8,6 +8,7 @@ import com.example.seating.service.ITbRoomService;
 import com.example.seating.service.ITbSeatService;
 import com.example.seating.utils.ReturnUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -75,6 +76,16 @@ public class TbRoomController {
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
         }
+    }
+
+    /**
+     * 移除自习室和自习室的所有座位
+     * @param roomId
+     * @return
+     */
+    @DeleteMapping("/remove/{roomId}")
+    public Object remove(@PathVariable("roomId")String roomId){
+        return ReturnUtils.Success(roomService.removeById(roomId) && seatService.remove(Wrappers.<TbSeat>query().lambda().eq(TbSeat::getRoomId,roomId)));
     }
 
     /**

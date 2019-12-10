@@ -2,13 +2,14 @@ package com.example.seating.controller;
 
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbOrder;
 import com.example.seating.entity.TbSeat;
 import com.example.seating.service.ITbOrderService;
 import com.example.seating.service.ITbSeatService;
 import com.example.seating.utils.ReturnUtils;
-import handler.LeaveHandler;
+import com.example.seating.handler.LeaveHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
@@ -36,6 +37,49 @@ public class TbSeatController {
 
     @Resource
     private ITbOrderService orderService;
+
+    /**
+     * 更新座位
+     * @param seat
+     * @return
+     */
+    @RequestMapping(value = "/update",method = RequestMethod.POST)
+    public Object update(@RequestBody TbSeat seat){
+        return ReturnUtils.Success(seatService.updateById(seat));
+    }
+
+    /**
+     * 分页获取
+     * @param current
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/page",method = RequestMethod.GET)
+    public Object page(@RequestParam int current,@RequestParam int size){
+        return ReturnUtils.Success(seatService.page(new Page<>(current,size)));
+    }
+
+    /**
+     * 保存座位
+     * @param seat
+     * @return
+     */
+    @RequestMapping(value = "/save",method = RequestMethod.PUT)
+    public Object save(@RequestBody TbSeat seat){
+        seat.setCreateTime(LocalDateTime.now());
+        return ReturnUtils.Success(seatService.save(seat));
+    }
+
+    /**
+     * 删除座位
+     * @param seatId
+     * @return
+     */
+    @RequestMapping(value = "/remove/{seatId}",method = RequestMethod.DELETE)
+    public Object remove(@PathVariable("seatId")String seatId){
+        return ReturnUtils.Success(seatService.removeById(seatId));
+    }
+
 
     /**
      * 查询教室座位

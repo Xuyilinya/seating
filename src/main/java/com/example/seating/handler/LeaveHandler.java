@@ -1,4 +1,4 @@
-package handler;
+package com.example.seating.handler;
 
 import com.example.seating.handler.thead.LeaveThread;
 import lombok.extern.slf4j.Slf4j;

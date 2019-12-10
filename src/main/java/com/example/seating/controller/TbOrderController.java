@@ -2,6 +2,7 @@ package com.example.seating.controller;
 
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.seating.contstant.SysConstant;
 import com.example.seating.entity.TbBlackList;
 import com.example.seating.entity.TbOrder;
@@ -45,6 +46,37 @@ public class TbOrderController {
     private ITbBlackListService blackListService;
 
 
+    /**
+     * 订单分页
+     * @param current
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/page",method = RequestMethod.GET)
+    public Object page(@RequestParam int current,@RequestParam int size){
+        return ReturnUtils.Success(orderService.pageOf(new Page<>(current,size)));
+    }
+
+    /**
+     * 编辑订单
+     * @param order
+     * @return
+     */
+    @RequestMapping(value = "/update",method = RequestMethod.POST)
+    public Object update(@RequestBody TbOrder order){
+        TbSeat seat = seatService.getById(order.getSeatId());
+        switch (order.getStatus()){
+            case SysConstant.ORDER_STATUS_OVERDUE:
+            case SysConstant.ORDER_STATUS_CANCEL:
+                seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
+                break;
+                default:
+                    break;
+        }
+        return ReturnUtils.Success(seatService.updateById(seat)&&orderService.updateById(order));
+    }
+    
+    
 
     /**
      * 保存预约记录
@@ -158,10 +190,6 @@ public class TbOrderController {
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(23 - LocalDateTime.now().getHour());
     }
 
     /**
