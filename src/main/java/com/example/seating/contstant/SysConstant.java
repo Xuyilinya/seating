@@ -36,6 +36,11 @@ public class SysConstant {
     public static final int SEAT_STATUS_APPOINTMENT=2;
     public static final int SEAT_STATUS_LEAVE = 3;
 
+    /**
+     * 教室状态：0：禁用；1：可用
+     */
+    public static final int ROOM_STATUS_UNUSABLE = 0;
+    public static final int ROOM_STATUS_USABLE = 1;
 
 
 

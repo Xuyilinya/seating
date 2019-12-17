@@ -45,19 +45,20 @@ public class TbSeatController {
      */
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     public Object update(@RequestBody TbSeat seat){
-        return ReturnUtils.Success(seatService.updateById(seat));
+        try {
+            TbSeat seat1 = seatService.getById(seat.getSeatId());
+            if (seat1 == null) {
+                return ReturnUtils.ParamsInvalid();
+            }
+            seat1.setSeatStatus(seat.getSeatStatus());
+            return ReturnUtils.Success(seatService.updateById(seat));
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ReturnUtils.Failure();
+        }
+
     }
 
-    /**
-     * 分页获取
-     * @param current
-     * @param size
-     * @return
-     */
-    @RequestMapping(value = "/page",method = RequestMethod.GET)
-    public Object page(@RequestParam int current,@RequestParam int size){
-        return ReturnUtils.Success(seatService.page(new Page<>(current,size)));
-    }
 
     /**
      * 保存座位
@@ -146,31 +147,6 @@ public class TbSeatController {
         return res;
     }
 
-    /**
-     *
-     * 批量生成座位
-     * @return
-     */
-    @GetMapping(value = "/batchSave")
-    public Object batchSave(int count,int roomId){
-        try {
-            List<TbSeat> seats = new ArrayList<>();
-            for (int i = 1; i <count ; i++) {
-                TbSeat seat = new TbSeat();
-                seat.setRoomId(roomId);
-                String name = i+"";
-                if (name.length() < 2) {
-                    seat.setSeatName("A0"+name);
-                }
-                seat.setSeatName("A"+name);
-                seats.add(seat);
-            }
-            return ReturnUtils.Success(seatService.saveBatch(seats));
-        }catch (Exception e){
-            log.error(e.getMessage(),e);
-            return ReturnUtils.Failure();
-        }
-    }
 
     /**
      * 暂离

@@ -14,20 +14,16 @@ import java.util.Map;
 
 @Slf4j
 @ToString
+@Getter
+@Setter
 @AllArgsConstructor
 public class ReturnUtils implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Getter
-    @Setter
     private String code;
 
-    @Getter
-    @Setter
     private String msg;
 
-    @Setter
-    @Getter
     private Object data;
 
 
