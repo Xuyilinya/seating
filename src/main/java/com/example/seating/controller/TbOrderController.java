@@ -64,7 +64,9 @@ public class TbOrderController {
      */
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     public Object update(@RequestBody TbOrder order){
-        TbSeat seat = seatService.getById(order.getSeatId());
+        TbOrder order1 = orderService.getById(order.getOrderId());
+        TbSeat seat = seatService.getById(order1.getSeatId());
+        order1.setStatus(order.getStatus());
         switch (order.getStatus()){
             case SysConstant.ORDER_STATUS_OVERDUE:
             case SysConstant.ORDER_STATUS_CANCEL:
@@ -73,7 +75,7 @@ public class TbOrderController {
                 default:
                     break;
         }
-        return ReturnUtils.Success(seatService.updateById(seat)&&orderService.updateById(order));
+        return ReturnUtils.Success(seatService.updateById(seat)&&orderService.updateById(order1));
     }
     
     

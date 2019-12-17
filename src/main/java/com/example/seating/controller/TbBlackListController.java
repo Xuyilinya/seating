@@ -116,7 +116,7 @@ public class TbBlackListController {
 
             TbUser user = userService.getById(blackList.getUserId());
             user.setStatus(SysConstant.USER_STATUS_ENABLE);
-            return userService.updateById(user);
+            return ReturnUtils.Success(userService.updateById(user));
         }catch (Exception e){
             log.error(e.getMessage(),e);
             return ReturnUtils.Failure();

@@ -18,7 +18,7 @@
     FROM
 	tb_black_list t1
 	LEFT JOIN tb_user t2 ON t1.user_id = t2.id
-	AND t1.`status` = '1'
+	where  t1.`status` = '1'
 	ORDER BY t1.create_time DESC
     </select>
 </mapper>
