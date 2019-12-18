@@ -67,15 +67,18 @@ public class TbOrderController {
         TbOrder order1 = orderService.getById(order.getOrderId());
         TbSeat seat = seatService.getById(order1.getSeatId());
         order1.setStatus(order.getStatus());
-        switch (order.getStatus()){
-            case SysConstant.ORDER_STATUS_OVERDUE:
-            case SysConstant.ORDER_STATUS_CANCEL:
-                seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
-                break;
+        if (seat != null) {
+            switch (order.getStatus()){
+                case SysConstant.ORDER_STATUS_OVERDUE:
+                case SysConstant.ORDER_STATUS_CANCEL:
+                    seat.setSeatStatus(SysConstant.SEAT_STATUS_USABLE);
+                    break;
                 default:
                     break;
+            }
+            seatService.updateById(seat);
         }
-        return ReturnUtils.Success(seatService.updateById(seat)&&orderService.updateById(order1));
+        return ReturnUtils.Success(orderService.updateById(order1));
     }
     
     
